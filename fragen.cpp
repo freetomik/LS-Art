@@ -1,17 +1,51 @@
 #include <gtk/gtk.h>
 
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <stack>
+
+using namespace std;
+
+class Turtle {
+private:
+	double x;
+	double y;
+	double rotation;
+
+public:
+	Turtle ();
+	virtual ~Turtle ();
+};
+
+std::string filename;
+std::stack<Turtle> turtleStack;
+
 static gboolean do_draw(GtkWidget *draw, cairo_t *cc, gpointer data)
 {
-	GtkAllocation alloc;
+	// GtkAllocation alloc;
 
-	gtk_widget_get_allocation(draw, &alloc);
+	ifstream inFile(filename, fstream::in);
+
+	// gtk_widget_get_allocation(draw, &alloc);
 	// g_print("width=%d height=%d\n", alloc.width, alloc.height);
 	cairo_set_antialias(cc, CAIRO_ANTIALIAS_DEFAULT);
+	// TODO: set some nice LINE_JOIN
 
 	cairo_new_path(cc);	/* nova kresba */
-	cairo_line_to(cc, 5, 5);
-	cairo_line_to(cc, 100, 20);
-	cairo_line_to(cc, 20, 100);
+
+	char c;
+	while (inFile.get(c)) {
+		cout << c;
+		// TODO:
+		// switch(c) {
+			// case 'F':
+			// turtle.forward();
+			// break;
+			// ...
+		// }
+	}
+
 	cairo_close_path(cc);	/* ukoncit cestu */
 
 	/* cairo_fill/stroke ukoncuje kresbu */
@@ -28,6 +62,13 @@ static gboolean resize(GtkWidget *draw, GtkAllocation *alloc, gpointer data)
 
 int main(int argc, char **argv)
 {
+	if (argc < 2) {
+		printf("Program reads L-System string from file and renders it.\n");
+		printf("Usage: %s file\n", argv[0]);
+		return 1;
+	}
+	filename.assign(argv[1]);
+
 	GtkWidget *window, *box, *draw;
 
 	gtk_init(&argc, &argv);
@@ -39,7 +80,7 @@ int main(int argc, char **argv)
 	gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
 	gtk_window_set_gravity(GTK_WINDOW(window), GDK_GRAVITY_STATIC);
 
-	box = gtk_box_new(TRUE, 0);
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1);
 	gtk_container_add(GTK_CONTAINER(window), box);
 
 	draw = gtk_drawing_area_new();
