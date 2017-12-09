@@ -21,7 +21,7 @@ public:
 std::string filename;
 std::stack<Turtle> turtleStack;
 
-static gboolean do_draw(GtkWidget *draw, cairo_t *cc, gpointer data)
+static gboolean do_draw(GtkWidget *draw, cairo_t *cr, gpointer data)
 {
 	// GtkAllocation alloc;
 
@@ -29,10 +29,11 @@ static gboolean do_draw(GtkWidget *draw, cairo_t *cc, gpointer data)
 
 	// gtk_widget_get_allocation(draw, &alloc);
 	// g_print("width=%d height=%d\n", alloc.width, alloc.height);
-	cairo_set_antialias(cc, CAIRO_ANTIALIAS_DEFAULT);
+	cairo_set_antialias(cr, CAIRO_ANTIALIAS_DEFAULT);
 	// TODO: set some nice LINE_JOIN
 
-	cairo_new_path(cc);	/* nova kresba */
+	cairo_new_path(cr);	/* nova kresba */
+	// cairo_move_to(cr, 500, 500);
 
 	char c;
 	while (inFile.get(c)) {
@@ -46,10 +47,10 @@ static gboolean do_draw(GtkWidget *draw, cairo_t *cc, gpointer data)
 		// }
 	}
 
-	cairo_close_path(cc);	/* ukoncit cestu */
+	cairo_close_path(cr);	/* ukoncit cestu */
 
 	/* cairo_fill/stroke ukoncuje kresbu */
-	cairo_stroke(cc);
+	cairo_stroke(cr);
 
 	return TRUE; /* neprobublavat udalost vyse */
 }
@@ -74,7 +75,7 @@ int main(int argc, char **argv)
 	gtk_init(&argc, &argv);
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
-	gtk_window_set_default_size(GTK_WINDOW(window), 400, 300);
+	gtk_window_set_default_size(GTK_WINDOW(window), 500, 500);
   gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
   gtk_window_set_title(GTK_WINDOW(window), "Fractal Generator");
 	gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
