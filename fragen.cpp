@@ -5,18 +5,9 @@
 #include <string>
 #include <stack>
 
+#include "turtle.hpp"
+
 using namespace std;
-
-class Turtle {
-private:
-	double x;
-	double y;
-	double rotation;
-
-public:
-	Turtle ();
-	virtual ~Turtle ();
-};
 
 std::string filename;
 std::stack<Turtle> turtleStack;
@@ -35,16 +26,26 @@ static gboolean do_draw(GtkWidget *draw, cairo_t *cr, gpointer data)
 	cairo_new_path(cr);	/* nova kresba */
 	// cairo_move_to(cr, 500, 500);
 
+	double startx = 250, starty = 250, startr = 0;
+	Turtle turtle = Turtle(startx, starty, startr, cr);
+	double dist = 30.0;
+	double angle = 60.0;
+
 	char c;
 	while (inFile.get(c)) {
-		cout << c;
+		// cout << c;
 		// TODO:
-		// switch(c) {
-			// case 'F':
-			// turtle.forward();
-			// break;
-			// ...
-		// }
+		switch(c) {
+			case 'F':
+				turtle.forwardLine(dist);
+				break;
+			case '+':
+				turtle.turnLeft(angle);
+				break;
+			case '-':
+				turtle.turnRight(angle);
+				break;
+		}
 	}
 
 	cairo_close_path(cr);	/* ukoncit cestu */
