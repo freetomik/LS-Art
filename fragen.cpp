@@ -9,8 +9,8 @@
 
 using namespace std;
 
-std::string filename;
-std::stack<Turtle> turtleStack;
+string filename;
+stack<Turtle> turtleStack;
 
 static gboolean do_draw(GtkWidget *draw, cairo_t *cr, gpointer data)
 {
@@ -64,39 +64,39 @@ static gboolean resize(GtkWidget *draw, GtkAllocation *alloc, gpointer data)
 
 int main(int argc, char **argv)
 {
-	if (argc < 2) {
-		printf("Program reads L-System string from file and renders it.\n");
-		printf("Usage: %s file\n", argv[0]);
-		return 1;
-	}
-	filename.assign(argv[1]);
+		if (argc < 2) {
+			printf("Program reads L-System string from file and renders it.\n");
+			printf("Usage: %s file\n", argv[0]);
+			return 1;
+		}
+		filename.assign(argv[1]);
 
-	GtkWidget *window, *box, *draw;
+		GtkWidget *window, *box, *draw;
 
-	gtk_init(&argc, &argv);
-	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+		gtk_init(&argc, &argv);
+		window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
-	gtk_window_set_default_size(GTK_WINDOW(window), 500, 500);
-  gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-  gtk_window_set_title(GTK_WINDOW(window), "Fractal Generator");
-	gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
-	gtk_window_set_gravity(GTK_WINDOW(window), GDK_GRAVITY_STATIC);
+		gtk_window_set_default_size(GTK_WINDOW(window), 500, 500);
+	  gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+	  gtk_window_set_title(GTK_WINDOW(window), "Fractal Generator");
+		gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
+		gtk_window_set_gravity(GTK_WINDOW(window), GDK_GRAVITY_STATIC);
 
-	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1);
-	gtk_container_add(GTK_CONTAINER(window), box);
+		box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1);
+		gtk_container_add(GTK_CONTAINER(window), box);
 
-	draw = gtk_drawing_area_new();
-	gtk_box_pack_start(GTK_BOX(box), draw, TRUE, TRUE, 0);
+		draw = gtk_drawing_area_new();
+		gtk_box_pack_start(GTK_BOX(box), draw, TRUE, TRUE, 0);
 
-	g_signal_connect(G_OBJECT(draw), "draw",
-		G_CALLBACK(do_draw), NULL);
-	g_signal_connect(G_OBJECT(draw), "size-allocate",
-		G_CALLBACK(resize), NULL);
-  g_signal_connect(window, "destroy",
-      G_CALLBACK(gtk_main_quit), NULL);
+		g_signal_connect(G_OBJECT(draw), "draw",
+			G_CALLBACK(do_draw), NULL);
+		g_signal_connect(G_OBJECT(draw), "size-allocate",
+			G_CALLBACK(resize), NULL);
+	  g_signal_connect(window, "destroy",
+	      G_CALLBACK(gtk_main_quit), NULL);
 
-	gtk_widget_show_all(window);
+		gtk_widget_show_all(window);
 
-	gtk_main();
-	return 0;
+		gtk_main();
+		return 0;
 }
