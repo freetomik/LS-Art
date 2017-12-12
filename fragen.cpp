@@ -26,27 +26,21 @@ static gboolean do_draw(GtkWidget *draw, cairo_t *cr, gpointer data)
 	cairo_new_path(cr);	/* nova kresba */
 	// cairo_move_to(cr, 500, 500);
 
-	double startx = 250, starty = 250, startr = 0;
-	Turtle turtle = Turtle(startx, starty, startr, cr);
-	double dist = 30.0;
-	double angle = 60.0;
+	// double startx = 100, starty = 400, startr = 0;
+	// Turtle turtle = Turtle(startx, starty, startr, cr);
+	// double dist = 30.0;
+	// double angle = 60.0;
 
-	char c;
-	while (inFile.get(c)) {
-		// cout << c;
-		// TODO:
-		switch(c) {
-			case 'F':
-				turtle.forwardLine(dist);
-				break;
-			case '+':
-				turtle.turnLeft(angle);
-				break;
-			case '-':
-				turtle.turnRight(angle);
-				break;
-		}
-	}
+	// char c;
+	// while (inFile.get(c)) {
+	// 	// cout << c;
+	// 	if(c >= 'A' && c <= 'Z')
+	// 		turtle.forwardLine(dist);
+	// 	else if(c == '+')
+	// 		turtle.turnLeft(angle);
+	// 	else if(c == '-')
+	// 		turtle.turnRight(angle);
+	// }
 
 	cairo_close_path(cr);	/* ukoncit cestu */
 
