@@ -6,6 +6,7 @@
 #include <stack>
 
 #include "turtle.hpp"
+#include "lsystem.hpp"
 
 using namespace std;
 
@@ -64,6 +65,7 @@ int main(int argc, char **argv)
 			return 1;
 		}
 		filename.assign(argv[1]);
+		LSystem ls(filename);
 
 		GtkWidget *window, *box, *draw;
 
