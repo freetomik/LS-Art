@@ -67,6 +67,8 @@ int main(int argc, char **argv)
 		filename.assign(argv[1]);
 		LSystem ls(filename);
     ls.dump();
+		cout << ls.expand(ls.expand(ls.getAxiom())) << '\n';
+		return 0;
 
 		GtkWidget *window, *box, *draw;
 

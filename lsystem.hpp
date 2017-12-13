@@ -11,12 +11,15 @@ class LSystem {
 private:
   string name;
   string axiom;
-  map<char, string> rules;
+  typedef map<char, string> rule_map_t;
+  rule_map_t rules;
   double angle;
 
 public:
   LSystem (string filename);
+  string getAxiom();
   void dump();
+  string expand(const string strToExpand);
   virtual ~LSystem ();
 };
 

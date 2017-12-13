@@ -28,6 +28,29 @@ LSystem::LSystem(string filename)
     this->angle = StringToNumber<double>(LS_INI["angle"]);
 }
 
+// Goes through string and replaces characters with strings
+// according to L-System rules
+string LSystem::expand(const string strToExpand)
+{
+    char c;
+    string expandedStr(strToExpand);
+    rule_map_t::iterator rule_map_iter;
+    for (size_t i = 0; i < expandedStr.length(); i++) {
+      c = expandedStr.at(i);
+      rule_map_iter = this->rules.find(c);
+      if(rule_map_iter != this->rules.end()) {
+        expandedStr.replace(i, 1, rule_map_iter->second);
+        i += rule_map_iter->second.length() - 1;
+      }
+    }
+    return expandedStr;
+}
+
+string LSystem::getAxiom()
+{
+    return this->axiom;
+}
+
 void LSystem::dump()
 {
     cout << "name: " << this->name << '\n';
