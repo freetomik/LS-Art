@@ -16,11 +16,12 @@ private:
   double angle;
 
 public:
-  LSystem (string filename);
+  LSystem();
+  LSystem(string filename);
   string getAxiom();
   void dump();
   string expand(const string strToExpand);
-  virtual ~LSystem ();
+  virtual ~LSystem();
 };
 
 // NumberToString, StringToNumber
