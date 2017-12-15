@@ -1,0 +1,7 @@
+fragen.o: fragen.cpp fragen.hpp lsystem.hpp turtle.hpp
+gui.o: gui.cpp gui.hpp util.cpp
+ini.o: ini.cpp
+lsystem.o: lsystem.cpp lsystem.hpp ini.cpp
+main.o: main.cpp fragen.hpp lsystem.hpp turtle.hpp gui.hpp
+turtle.o: turtle.cpp turtle.hpp
+util.o: util.cpp
