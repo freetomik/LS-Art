@@ -1,26 +1,50 @@
 #include "gui.hpp"
 #include "util.cpp"
+#include "fragen.hpp"
 
 #include <fstream>
 
 GtkWidget *window = NULL;
 GtkWidget *text_view = NULL;
+GtkWidget *draw_area = NULL;
 GtkTextBuffer *text_buffer;
+
+FractalGenerator fragen;
+string draw_string;
+draw_info_t draw_info;
 
 vector<string> LSfiles = vector<string>();
 
-static gboolean do_draw(GtkWidget *draw, cairo_t *cr, gpointer data)
+static gboolean do_draw(GtkWidget *draw_area, cairo_t *cr, gpointer data)
 {
 	// GtkAllocation alloc;
+	//
+	// gtk_widget_get_allocation(draw_area, &alloc);
 	// g_print("width=%d height=%d\n", alloc.width, alloc.height);
-	// cairo_set_antialias(cr, CAIRO_ANTIALIAS_DEFAULT);
+	cairo_set_antialias(cr, CAIRO_ANTIALIAS_DEFAULT);
 	// TODO: set some nice LINE_JOIN
 
+	cairo_new_path(cr);	/* nova kresba */
 
+	double lineLength = draw_info.lineLength;
+	double angle = draw_info.angle;
+	double startx = draw_info.x, starty = draw_info.y, startr = 0;
+	Turtle turtle = Turtle(startx, starty, startr, cr);
 
+	for (char c : draw_string) {
+		// cout << c;
+		if(c >= 'A' && c <= 'Z')
+			turtle.forwardLine(lineLength);
+		else if(c == '+')
+			turtle.turnLeft(angle);
+		else if(c == '-')
+			turtle.turnRight(angle);
+	}
 
 	// cairo_close_path(cr);	/* ukoncit cestu */
 
+	/* cairo_fill/stroke ukoncuje kresbu */
+	cairo_stroke(cr);
 
 	cairo_fill (cr);
 
@@ -72,9 +96,13 @@ void combo_changed(GtkComboBox *widget, gpointer user_data)
 		// change text in text view
 		gtk_text_buffer_set_text (text_buffer, file_str.data(), -1);
 
-		// TODO
 		// draw fractal based on L-System specification from file
-		// ...
+		fragen.readLSFromFile(file_path);
+		LSystem ls = fragen.getLS();
+		draw_info = ls.getDrawInfo();
+		draw_string = fragen.getIteration(draw_info.iter);
+		// redraw drawing area
+		gtk_widget_queue_draw(draw_area);
 }
 
 void runGUI(int argc, char **argv)
@@ -83,7 +111,7 @@ void runGUI(int argc, char **argv)
 
 		window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
-		gtk_window_set_default_size(GTK_WINDOW(window), 500, 500);
+		gtk_window_set_default_size(GTK_WINDOW(window), 640, 480);
 	  gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
 	  gtk_window_set_title(GTK_WINDOW(window), "Fractal Generator");
 		gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
@@ -128,20 +156,22 @@ void runGUI(int argc, char **argv)
 		button1 = gtk_button_new_with_label("Button 1");
 		gtk_grid_attach(GTK_GRID(grid), button1, 1, 0, 1, 1);
 
-		// drawing area
-		GtkWidget *draw;
-		draw = gtk_drawing_area_new();
-		gtk_grid_attach(GTK_GRID(grid), draw, 1, 1, 1, 1);
+		// drawing area (is global)
+		draw_area = gtk_drawing_area_new();
+		gtk_widget_set_size_request(draw_area, 500, 450);
+		gtk_grid_attach(GTK_GRID(grid), draw_area, 1, 1, 1, 1);
 		// FIXME expand drawing area to fill the window
-	  gtk_widget_set_hexpand (draw, GTK_ALIGN_FILL);
-	  gtk_widget_set_vexpand (draw, GTK_ALIGN_FILL);
+	  gtk_widget_set_hexpand (draw_area, GTK_ALIGN_FILL);
+	  gtk_widget_set_vexpand (draw_area, GTK_ALIGN_FILL);
 		gtk_container_add(GTK_CONTAINER(window), grid);
 
+		// init draw
+		combo_changed(GTK_COMBO_BOX(combo), NULL);
 
 		// signals
-		g_signal_connect(G_OBJECT(draw), "draw",
+		g_signal_connect(G_OBJECT(draw_area), "draw",
 			G_CALLBACK(do_draw), NULL);
-		g_signal_connect(G_OBJECT(draw), "size-allocate",
+		g_signal_connect(G_OBJECT(draw_area), "size-allocate",
 			G_CALLBACK(resize), NULL);
 	  g_signal_connect(window, "destroy",
 	      G_CALLBACK(gtk_main_quit), NULL);
