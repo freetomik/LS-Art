@@ -11,10 +11,15 @@
 class FractalGenerator {
 private:
   LSystem ls;
-  vector<string> *iterations;   // use pointer or not?
+  vector<string> iterations;
   stack<Turtle> turtleStack;
 public:
   FractalGenerator ();
+
+  LSystem getLS();
+  void readLSFromFile(string filename);
+  string getIteration(unsigned int n);
+
   virtual ~FractalGenerator ();
 };
 
