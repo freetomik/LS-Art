@@ -7,22 +7,36 @@
 
 using namespace std;
 
+// default values for drawing
+typedef struct {
+  double angle;
+  unsigned int iter;
+  double lineLength;
+  double x, y;
+} draw_info_t;
+
 class LSystem {
 private:
   string name;
   string axiom;
   typedef map<char, string> rule_map_t;
   rule_map_t rules;
-  double angle;
+
+  draw_info_t draw_info;
 
 public:
   LSystem();
   LSystem(string filename);
+
   string getAxiom();
   // void dump();
   string expand(const string strToExpand);
+  void readFromFile(string filename);
+  draw_info_t getDrawInfo();
+
   virtual ~LSystem();
 };
+
 
 // NumberToString, StringToNumber
 // author Mattia Basaglia

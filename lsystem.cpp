@@ -11,6 +11,11 @@ unsigned int numRules = 0;
 // reads L-System specification from ini file
 LSystem::LSystem(string filename)
 {
+    this->readFromFile(filename);
+}
+
+void LSystem::readFromFile(string filename)
+{
     // read ini file with https://github.com/Poordeveloper/ini-parser
     INI::Parser ini(filename.data());
     #define LS_INI ini.top()("L-System")
@@ -26,7 +31,17 @@ LSystem::LSystem(string filename)
       ruleValue.erase(0, 2);
       this->rules[leftSide] = ruleValue;
     }
-    this->angle = StringToNumber<double>(LS_INI["angle"]);
+    // drawing stuff
+    this->draw_info.angle = StringToNumber<double>(LS_INI["angle"]);
+    this->draw_info.lineLength = StringToNumber<double>(LS_INI["lineLength"]);
+    this->draw_info.iter = StringToNumber<int>(LS_INI["iter"]);
+    this->draw_info.x = StringToNumber<int>(LS_INI["x"]);
+    this->draw_info.y = StringToNumber<int>(LS_INI["y"]);
+}
+
+draw_info_t LSystem::getDrawInfo()
+{
+    return this->draw_info;
 }
 
 // Goes through string and replaces characters with strings
