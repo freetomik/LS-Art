@@ -73,11 +73,21 @@ static void open_message_dialog(const char *message, const char *secondary)
   gtk_widget_destroy (dialog);
 }
 
+void show_info_dialog(GtkButton *button, gpointer user_data)
+{
+		const char *msg = "Fractal Generator v0.1";
+		const char *sec = "This program generates string from specified L-System"
+											"and renders it with turtle graphics.";
+		open_message_dialog(msg, sec);
+}
+
 void combo_changed(GtkComboBox *widget, gpointer user_data)
 {
 		gint index = gtk_combo_box_get_active(widget);
+		string filename = LSfiles[index];
 
-		string file_path = string("fractals/") + LSfiles[index];
+		// string file_path = string("fractals/") + filename;
+		string file_path = filename;
 		ifstream LSfile(file_path.data(), ios::in);
 		string file_str;
 		if (LSfile.is_open()) {
@@ -126,7 +136,7 @@ void runGUI(int argc, char **argv)
 		combo = gtk_combo_box_text_new();
 		// get ls files from fractals directory
 		// TODO read fractal directory name from global conf file
-    string dir = "fractals";
+    string dir = ".";
     string ext = "ls";
     int err = getdir(dir, LSfiles, ext);
 		if(err){
@@ -152,9 +162,11 @@ void runGUI(int argc, char **argv)
 		gtk_text_buffer_set_text (text_buffer, "Hello, this is some text", -1);
 		gtk_grid_attach(GTK_GRID(grid), text_view, 0, 1, 1, 1);
 
-		GtkWidget *button1;
-		button1 = gtk_button_new_with_label("Button 1");
-		gtk_grid_attach(GTK_GRID(grid), button1, 1, 0, 1, 1);
+		GtkWidget *info_button;
+		info_button = gtk_button_new_with_label("Info");
+		gtk_grid_attach(GTK_GRID(grid), info_button, 1, 0, 1, 1);
+		g_signal_connect(G_OBJECT(info_button), "clicked",
+			G_CALLBACK(show_info_dialog), NULL);
 
 		// drawing area (is global)
 		draw_area = gtk_drawing_area_new();
