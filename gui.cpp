@@ -57,18 +57,63 @@ void runGUI(int argc, char **argv)
 		gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
 		gtk_window_set_gravity(GTK_WINDOW(window), GDK_GRAVITY_STATIC);
 
-		box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1);
-		gtk_container_add(GTK_CONTAINER(window), box);
+		// top-level grid
+		GtkWidget *grid;
+		grid = gtk_grid_new();
 
+		// combo box with input fractal files
+		GtkWidget *combo;
+		combo = gtk_combo_box_text_new();
+		// get ls files from fractals directory
+		// TODO read fractal directory name from global conf file
+    string dir = "fractals";
+    string ext = "ls";
+    int err = getdir(dir, LSfiles, ext);
+		if(err){
+			const char *msg = "Cannot open fractals directory.";
+			const char *sec = "Create directory fractals in program directory, "
+												"fill it with .ls files and restart application.";
+			open_message_dialog(msg, sec);
+      return;
+		}
+    for (unsigned int i = 0;i < LSfiles.size();i++) {
+      // cout << LSfiles[i] << endl;
+			gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combo), NULL, LSfiles[i].data());
+		}
+
+    gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 1);
+		gtk_grid_attach(GTK_GRID(grid), combo, 0, 0, 1, 1);
+		g_signal_connect(G_OBJECT(combo), "changed",
+			G_CALLBACK(combo_changed), NULL);
+
+		text_view = gtk_text_view_new ();
+		gtk_text_view_set_editable(GTK_TEXT_VIEW(text_view), FALSE);
+		text_buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (text_view));
+		gtk_text_buffer_set_text (text_buffer, "Hello, this is some text", -1);
+		gtk_grid_attach(GTK_GRID(grid), text_view, 0, 1, 1, 1);
+
+		GtkWidget *button1;
+		button1 = gtk_button_new_with_label("Button 1");
+		gtk_grid_attach(GTK_GRID(grid), button1, 1, 0, 1, 1);
+
+		// drawing area
+		GtkWidget *draw;
 		draw = gtk_drawing_area_new();
-		gtk_box_pack_start(GTK_BOX(box), draw, TRUE, TRUE, 0);
+		gtk_grid_attach(GTK_GRID(grid), draw, 1, 1, 1, 1);
+		// FIXME expand drawing area to fill the window
+	  gtk_widget_set_hexpand (draw, GTK_ALIGN_FILL);
+	  gtk_widget_set_vexpand (draw, GTK_ALIGN_FILL);
+		gtk_container_add(GTK_CONTAINER(window), grid);
 
+
+		// signals
 		g_signal_connect(G_OBJECT(draw), "draw",
 			G_CALLBACK(do_draw), NULL);
 		g_signal_connect(G_OBJECT(draw), "size-allocate",
 			G_CALLBACK(resize), NULL);
 	  g_signal_connect(window, "destroy",
 	      G_CALLBACK(gtk_main_quit), NULL);
+
 
 		gtk_widget_show_all(window);
 
