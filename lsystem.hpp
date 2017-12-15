@@ -19,7 +19,7 @@ public:
   LSystem();
   LSystem(string filename);
   string getAxiom();
-  void dump();
+  // void dump();
   string expand(const string strToExpand);
   virtual ~LSystem();
 };

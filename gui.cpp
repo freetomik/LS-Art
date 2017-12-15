@@ -12,61 +12,15 @@ vector<string> LSfiles = vector<string>();
 static gboolean do_draw(GtkWidget *draw, cairo_t *cr, gpointer data)
 {
 	// GtkAllocation alloc;
-
-	// ifstream inFile(filename, fstream::in);
-
-	// gtk_widget_get_allocation(draw, &alloc);
 	// g_print("width=%d height=%d\n", alloc.width, alloc.height);
 	// cairo_set_antialias(cr, CAIRO_ANTIALIAS_DEFAULT);
 	// TODO: set some nice LINE_JOIN
 
-	// cairo_new_path(cr);	/* nova kresba */
-	// cairo_move_to(cr, 50, 50);
-	// cairo_line_to(cr, 30, 20);
-	// cairo_line_to(cr, 40, 10);
-	// cairo_line_to(cr, 70, 30);
 
-	// double startx = 100, starty = 400, startr = 0;
-	// Turtle turtle = Turtle(startx, starty, startr, cr);
-	// double dist = 30.0;
-	// double angle = 60.0;
 
-	// char c;
-	// while (inFile.get(c)) {
-	// 	// cout << c;
-	// 	if(c >= 'A' && c <= 'Z')
-	// 		turtle.forwardLine(dist);
-	// 	else if(c == '+')
-	// 		turtle.turnLeft(angle);
-	// 	else if(c == '-')
-	// 		turtle.turnRight(angle);
-	// }
 
 	// cairo_close_path(cr);	/* ukoncit cestu */
 
-	/* cairo_fill/stroke ukoncuje kresbu */
-	// cairo_stroke(cr);
-
-	guint width, height;
-	GdkRGBA color;
-	GtkStyleContext *context;
-
-	context = gtk_widget_get_style_context (draw);
-
-	width = gtk_widget_get_allocated_width (draw);
-	height = gtk_widget_get_allocated_height (draw);
-
-	gtk_render_background (context, cr, 0, 0, width, height);
-
-	cairo_arc (cr,
-						 width / 2.0, height / 2.0,
-						 MIN (width, height) / 2.0,
-						 0, 2 * G_PI);
-
-	gtk_style_context_get_color (context,
-															 gtk_style_context_get_state (context),
-															 &color);
-	gdk_cairo_set_source_rgba (cr, &color);
 
 	cairo_fill (cr);
 
@@ -98,7 +52,6 @@ static void open_message_dialog(const char *message, const char *secondary)
 void combo_changed(GtkComboBox *widget, gpointer user_data)
 {
 		gint index = gtk_combo_box_get_active(widget);
-		cout << "selected file: " << LSfiles[index] << '\n';
 
 		string file_path = string("fractals/") + LSfiles[index];
 		ifstream LSfile(file_path.data(), ios::in);
