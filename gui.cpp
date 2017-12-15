@@ -1,4 +1,13 @@
 #include "gui.hpp"
+#include "util.cpp"
+
+#include <fstream>
+
+GtkWidget *window = NULL;
+GtkWidget *text_view = NULL;
+GtkTextBuffer *text_buffer;
+
+vector<string> LSfiles = vector<string>();
 
 static gboolean do_draw(GtkWidget *draw, cairo_t *cr, gpointer data)
 {
@@ -44,11 +53,55 @@ static gboolean resize(GtkWidget *draw, GtkAllocation *alloc, gpointer data)
 	return TRUE;
 }
 
+static void open_message_dialog(const char *message, const char *secondary)
+{
+  GtkWidget *dialog;
+
+  dialog = gtk_message_dialog_new (GTK_WINDOW (window),
+                                   GtkDialogFlags(GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT),
+                                   GTK_MESSAGE_ERROR,
+                                   GTK_BUTTONS_OK,
+                                   message
+                                   );
+  gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+                                            secondary);
+  gtk_dialog_run (GTK_DIALOG (dialog));
+  gtk_widget_destroy (dialog);
+}
+
+void combo_changed(GtkComboBox *widget, gpointer user_data)
+{
+		gint index = gtk_combo_box_get_active(widget);
+		cout << "selected file: " << LSfiles[index] << '\n';
+
+		string file_path = string("fractals/") + LSfiles[index];
+		ifstream LSfile(file_path.data(), ios::in);
+		string file_str;
+		if (LSfile.is_open()) {
+			string line;
+			while (getline(LSfile, line)) {
+				file_str += line + '\n';
+			}
+			LSfile.close();
+		}
+		else {
+			string s_msg = string("Unable to open file ") + file_path;
+			const char *msg = s_msg.data();
+			const char *sec = "Do you have access right to the file?";
+			open_message_dialog(msg, sec);
+		}
+		// change text in text view
+		gtk_text_buffer_set_text (text_buffer, file_str.data(), -1);
+
+		// TODO
+		// draw fractal based on L-System specification from file
+		// ...
+}
+
 void runGUI(int argc, char **argv)
 {
-		GtkWidget *window, *box, *draw;
-
 		gtk_init(&argc, &argv);
+
 		window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
 		gtk_window_set_default_size(GTK_WINDOW(window), 500, 500);
