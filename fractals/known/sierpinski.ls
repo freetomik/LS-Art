@@ -1,0 +1,11 @@
+[L-System]
+name=Sierpinski
+angle=60
+axiom=X
+numRules=2
+rule0=X>++FXF++FXF++FXF
+rule1=F>FF
+iter=3
+lineLength=3
+x=
+y=
