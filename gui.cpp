@@ -9,7 +9,7 @@ GtkWidget *text_view = NULL;
 GtkWidget *draw_area = NULL;
 GtkTextBuffer *text_buffer;
 
-FractalGenerator fragen;
+FractalGenerator *fragen;
 string draw_string;
 draw_info_t draw_info;
 
@@ -75,7 +75,7 @@ static void open_message_dialog(const char *message, const char *secondary)
 
 void show_info_dialog(GtkButton *button, gpointer user_data)
 {
-		const char *msg = "Fractal Generator v0.1";
+		const char *msg = "Fractal Generator v0.2";
 		const char *sec = "This program generates string from specified L-System"
 											"and renders it with turtle graphics.";
 		open_message_dialog(msg, sec);
@@ -107,10 +107,12 @@ void combo_changed(GtkComboBox *widget, gpointer user_data)
 		gtk_text_buffer_set_text (text_buffer, file_str.data(), -1);
 
 		// draw fractal based on L-System specification from file
-		fragen.readLSFromFile(file_path);
-		LSystem ls = fragen.getLS();
+		fragen = new FractalGenerator();
+		fragen->readLSFromFile(file_path);
+		LSystem ls = fragen->getLS();
 		draw_info = ls.getDrawInfo();
-		draw_string = fragen.getIteration(draw_info.iter);
+		draw_string = fragen->getIteration(draw_info.iter);
+		delete fragen;
 		// redraw drawing area
 		gtk_widget_queue_draw(draw_area);
 }
@@ -170,7 +172,7 @@ void runGUI(int argc, char **argv)
 
 		// drawing area (is global)
 		draw_area = gtk_drawing_area_new();
-		gtk_widget_set_size_request(draw_area, 500, 450);
+		gtk_widget_set_size_request(draw_area, 500, 500);
 		gtk_grid_attach(GTK_GRID(grid), draw_area, 1, 1, 1, 1);
 		// FIXME expand drawing area to fill the window
 	  gtk_widget_set_hexpand (draw_area, GTK_ALIGN_FILL);
