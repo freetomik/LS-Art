@@ -1,0 +1,11 @@
+[L-System]
+name=Sierpinski
+angle=120
+numRules=2
+axiom=F-G-G
+rule0=F>F-G+F+G-F
+rule1=G>GG
+iter=4
+lineLength=30
+x=10
+y=440
