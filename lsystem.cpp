@@ -67,14 +67,16 @@ string LSystem::getAxiom()
     return this->axiom;
 }
 
-// void LSystem::dump()
-// {
-//     cout << "name: " << this->name << '\n';
-//     cout << "axiom: " << this->axiom << '\n';
-//     cout << "numRules: " << numRules << '\n';
-//     for(auto rule : this->rules)
-//       cout << "rule: " << rule.first << " > " << rule.second <<  "\n";
-//     cout << "angle: " << this->angle << '\n';
-// }
+void LSystem::dump()
+{
+    cout << "name: " << this->name << '\n';
+    cout << "axiom: " << this->axiom << '\n';
+    cout << "numRules: " << numRules << '\n';
+    for(auto rule : this->rules)
+      cout << "rule: " << rule.first << " > " << rule.second <<  "\n";
+    cout << "angle: " << this->draw_info.angle << '\n';
+    cout << "iter: " << this->draw_info.iter << '\n';
+    cout << '\n';
+}
 
 LSystem::~LSystem(){}

@@ -29,7 +29,7 @@ public:
   LSystem(string filename);
 
   string getAxiom();
-  // void dump();
+  void dump();
   string expand(const string strToExpand);
   void readFromFile(string filename);
   draw_info_t getDrawInfo();
