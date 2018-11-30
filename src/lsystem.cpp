@@ -34,9 +34,10 @@ void LSystem::readFromFile(string filename)
     // drawing stuff
     this->draw_info.angle = StringToNumber<double>(LS_INI["angle"]);
     this->draw_info.lineLength = StringToNumber<double>(LS_INI["lineLength"]);
-    this->draw_info.iter = StringToNumber<int>(LS_INI["iter"]);
-    this->draw_info.x = StringToNumber<int>(LS_INI["x"]);
-    this->draw_info.y = StringToNumber<int>(LS_INI["y"]);
+    this->draw_info.iterations = StringToNumber<int>(LS_INI["iterations"]);
+    this->draw_info.startX = StringToNumber<int>(LS_INI["x"]);
+    this->draw_info.startY = StringToNumber<int>(LS_INI["y"]);
+    this->draw_info.rotation = StringToNumber<int>(LS_INI["rotation"]);
 }
 
 draw_info_t LSystem::getDrawInfo()
@@ -75,7 +76,8 @@ void LSystem::dump()
     for(auto rule : this->rules)
       cout << "rule: " << rule.first << " > " << rule.second <<  "\n";
     cout << "angle: " << this->draw_info.angle << '\n';
-    cout << "iter: " << this->draw_info.iter << '\n';
+    cout << "iter: " << this->draw_info.iterations << '\n';
+    cout << "rotation: " << this->draw_info.rotation << '\n';
     cout << '\n';
 }
 

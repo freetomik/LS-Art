@@ -1,26 +1,23 @@
-#ifndef FRAGEN_H
-#define FRAGEN_H
+#ifndef LSGEN_H
+#define LSGEN_H
 
-#include <stack>
 #include <vector>
 #include <string>
 
 #include "lsystem.hpp"
-#include "turtle.hpp"
 
-class FractalGenerator {
+class LSGenerator {
 private:
   LSystem ls;
   vector<string> iterations;
-  stack<Turtle> turtleStack;
 public:
-  FractalGenerator ();
+  LSGenerator ();
 
   LSystem getLS();
   void readLSFromFile(string filename);
   string getIteration(unsigned int n);
 
-  virtual ~FractalGenerator ();
+  virtual ~LSGenerator ();
 };
 
 #endif

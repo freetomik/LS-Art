@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 
-#include "fragen.hpp"
+#include "lsgen.hpp"
 #include "lsystem.hpp"
 #include "gui.hpp"
 

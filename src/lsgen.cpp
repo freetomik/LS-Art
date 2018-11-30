@@ -1,18 +1,18 @@
-#include "fragen.hpp"
+#include "lsgen.hpp"
 
-FractalGenerator::FractalGenerator() {}
+LSGenerator::LSGenerator() {}
 
-LSystem FractalGenerator::getLS()
+LSystem LSGenerator::getLS()
 {
     return this->ls;
 }
 
-void FractalGenerator::readLSFromFile(string filename)
+void LSGenerator::readLSFromFile(string filename)
 {
     this->ls.readFromFile(filename);
 }
 
-string FractalGenerator::getIteration(unsigned int n)
+string LSGenerator::getIteration(unsigned int n)
 {
     size_t curr_max_iter = this->iterations.size();
     // 0th iteration is the axiom
@@ -35,4 +35,4 @@ string FractalGenerator::getIteration(unsigned int n)
     return this->iterations[n-1];
 }
 
-FractalGenerator::~FractalGenerator(){}
+LSGenerator::~LSGenerator(){}

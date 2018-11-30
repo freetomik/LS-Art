@@ -10,9 +10,10 @@ using namespace std;
 // default values for drawing
 typedef struct {
   double angle;
-  unsigned int iter;
+  unsigned int iterations;
   double lineLength;
-  double x, y;
+  double startX, startY;
+  double rotation;
 } draw_info_t;
 
 class LSystem {

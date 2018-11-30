@@ -1,17 +1,21 @@
 #include "gui.hpp"
 #include "util.cpp"
-#include "fragen.hpp"
+#include "lsgen.hpp"
+#include "turtle.hpp"
 
 #include <fstream>
+#include <stack>
 
 GtkWidget *window = NULL;
 GtkWidget *text_view = NULL;
 GtkWidget *draw_area = NULL;
 GtkTextBuffer *text_buffer;
 
-FractalGenerator *fragen;
+LSGenerator *lsgen;
 string draw_string;
 draw_info_t draw_info;
+unsigned short curr_iter;
+stack<Turtle> turtleStack;
 
 vector<string> LSfiles = vector<string>();
 
@@ -24,31 +28,58 @@ static gboolean do_draw(GtkWidget *draw_area, cairo_t *cr, gpointer data)
 	cairo_set_antialias(cr, CAIRO_ANTIALIAS_DEFAULT);
 	// TODO: set some nice LINE_JOIN
 
-	cairo_new_path(cr);	/* nova kresba */
+	cairo_new_path(cr);	/* new drawing */
 
 	double lineLength = draw_info.lineLength;
 	double angle = draw_info.angle;
-	double startx = draw_info.x, starty = draw_info.y, startr = 0;
+	double startx = draw_info.startX, starty = draw_info.startY, startr = draw_info.rotation;
 	Turtle turtle = Turtle(startx, starty, startr, cr);
 
 	for (char c : draw_string) {
-		// cout << c;
 		if(c >= 'A' && c <= 'Z')
 			turtle.forwardLine(lineLength);
 		else if(c == '+')
 			turtle.turnLeft(angle);
 		else if(c == '-')
 			turtle.turnRight(angle);
+		else if(c == '[')
+			turtleStack.push(turtle);
+		else if(c == ']')
+			if(!turtleStack.empty()) {
+				turtle = turtleStack.top();
+				turtleStack.pop();
+			}
 	}
 
-	// cairo_close_path(cr);	/* ukoncit cestu */
+	// cairo_close_path(cr);	/* close drawing path (connect start & end point) */
 
-	/* cairo_fill/stroke ukoncuje kresbu */
+	/* cairo_fill/stroke ends the drawing */
 	cairo_stroke(cr);
 
 	cairo_fill (cr);
 
-	return TRUE; /* neprobublavat udalost vyse */
+	return TRUE; /* don't let go the event to higher place */
+}
+
+void increase_iteration()
+{
+		// TODO set upper boundary - if draw_string is very large
+		if (true) {
+			// get next iteration of L-System
+			draw_string = lsgen->getIteration(++curr_iter);
+			// redraw drawing area
+			gtk_widget_queue_draw(draw_area);
+		}
+}
+
+void decrease_iteration()
+{
+		if (curr_iter > 1) {
+			// get previous iteration of L-System
+			draw_string = lsgen->getIteration(--curr_iter);
+			// redraw drawing area
+			gtk_widget_queue_draw(draw_area);
+		}
 }
 
 static gboolean resize(GtkWidget *draw, GtkAllocation *alloc, gpointer data)
@@ -75,19 +106,19 @@ static void open_message_dialog(const char *message, const char *secondary)
 
 void show_info_dialog(GtkButton *button, gpointer user_data)
 {
-		const char *msg = "Fractal Generator v0.2";
-		const char *sec = "This program generates string from specified L-System"
+		const char *msg = "L-System Art Generator";
+		const char *sec = "This program generates string from specified L-System "
 											"and renders it with turtle graphics.";
 		open_message_dialog(msg, sec);
 }
 
-void combo_changed(GtkComboBox *widget, gpointer user_data)
+void combo_files_changed(GtkComboBox *widget, gpointer user_data)
 {
 		gint index = gtk_combo_box_get_active(widget);
 		string filename = LSfiles[index];
 
-		// string file_path = string("fractals/") + filename;
-		string file_path = filename;
+		string file_path = string("../l-systems/") + filename;
+		// string file_path = filename;
 		ifstream LSfile(file_path.data(), ios::in);
 		string file_str;
 		if (LSfile.is_open()) {
@@ -106,13 +137,18 @@ void combo_changed(GtkComboBox *widget, gpointer user_data)
 		// change text in text view
 		gtk_text_buffer_set_text (text_buffer, file_str.data(), -1);
 
+		// delete previous L-System generator
+		if (lsgen != NULL) {
+			delete lsgen;
+			lsgen = NULL;
+		}
 		// draw fractal based on L-System specification from file
-		fragen = new FractalGenerator();
-		fragen->readLSFromFile(file_path);
-		LSystem ls = fragen->getLS();
+		lsgen = new LSGenerator();
+		lsgen->readLSFromFile(file_path);
+		LSystem ls = lsgen->getLS();
 		draw_info = ls.getDrawInfo();
-		draw_string = fragen->getIteration(draw_info.iter);
-		delete fragen;
+		draw_string = lsgen->getIteration(draw_info.iterations);
+		curr_iter = draw_info.iterations;
 		// redraw drawing area
 		gtk_widget_queue_draw(draw_area);
 }
@@ -125,7 +161,7 @@ void runGUI(int argc, char **argv)
 
 		gtk_window_set_default_size(GTK_WINDOW(window), 640, 480);
 	  gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-	  gtk_window_set_title(GTK_WINDOW(window), "Fractal Generator");
+	  gtk_window_set_title(GTK_WINDOW(window), "L-System Art Generator");
 		gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
 		gtk_window_set_gravity(GTK_WINDOW(window), GDK_GRAVITY_STATIC);
 
@@ -133,30 +169,30 @@ void runGUI(int argc, char **argv)
 		GtkWidget *grid;
 		grid = gtk_grid_new();
 
-		// combo box with input fractal files
-		GtkWidget *combo;
-		combo = gtk_combo_box_text_new();
-		// get ls files from fractals directory
-		// TODO read fractal directory name from global conf file
-    string dir = ".";
+		// combo box with input l-system files
+		GtkWidget *combo_files;
+		combo_files = gtk_combo_box_text_new();
+		// TODO read l-system directory name from global conf file
+    string dir = "../l-systems";
     string ext = "ls";
+		// get ls files from l-systems directory
     int err = getdir(dir, LSfiles, ext);
 		if(err){
-			const char *msg = "Cannot open fractals directory.";
-			const char *sec = "Create directory fractals in program directory, "
+			const char *msg = "Cannot open l-systems directory.";
+			const char *sec = "Create directory l-systems in program directory, "
 												"fill it with .ls files and restart application.";
 			open_message_dialog(msg, sec);
       return;
 		}
     for (unsigned int i = 0;i < LSfiles.size();i++) {
       // cout << LSfiles[i] << endl;
-			gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combo), NULL, LSfiles[i].data());
+			gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combo_files), NULL, LSfiles[i].data());
 		}
 
-    gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 1);
-		gtk_grid_attach(GTK_GRID(grid), combo, 0, 0, 1, 1);
-		g_signal_connect(G_OBJECT(combo), "changed",
-			G_CALLBACK(combo_changed), NULL);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(combo_files), 1);
+		gtk_grid_attach(GTK_GRID(grid), combo_files, 0, 0, 1, 1);
+		g_signal_connect(G_OBJECT(combo_files), "changed",
+			G_CALLBACK(combo_files_changed), NULL);
 
 		text_view = gtk_text_view_new ();
 		gtk_text_view_set_editable(GTK_TEXT_VIEW(text_view), FALSE);
@@ -164,23 +200,35 @@ void runGUI(int argc, char **argv)
 		gtk_text_buffer_set_text (text_buffer, "Hello, this is some text", -1);
 		gtk_grid_attach(GTK_GRID(grid), text_view, 0, 1, 1, 1);
 
+		GtkWidget *decrease_button;
+		decrease_button = gtk_button_new_with_label("-");
+		gtk_grid_attach(GTK_GRID(grid), decrease_button, 1, 0, 1, 1);
+		g_signal_connect(G_OBJECT(decrease_button), "clicked",
+			G_CALLBACK(decrease_iteration), NULL);
+
+		GtkWidget *increase_button;
+		increase_button = gtk_button_new_with_label("+");
+		gtk_grid_attach(GTK_GRID(grid), increase_button, 2, 0, 1, 1);
+		g_signal_connect(G_OBJECT(increase_button), "clicked",
+			G_CALLBACK(increase_iteration), NULL);
+
 		GtkWidget *info_button;
 		info_button = gtk_button_new_with_label("Info");
-		gtk_grid_attach(GTK_GRID(grid), info_button, 1, 0, 1, 1);
+		gtk_grid_attach(GTK_GRID(grid), info_button, 3, 0, 1, 1);
 		g_signal_connect(G_OBJECT(info_button), "clicked",
 			G_CALLBACK(show_info_dialog), NULL);
 
 		// drawing area (is global)
 		draw_area = gtk_drawing_area_new();
 		gtk_widget_set_size_request(draw_area, 500, 500);
-		gtk_grid_attach(GTK_GRID(grid), draw_area, 1, 1, 1, 1);
+		gtk_grid_attach(GTK_GRID(grid), draw_area, 1, 1, 10, 1);
 		// FIXME expand drawing area to fill the window
 	  gtk_widget_set_hexpand (draw_area, GTK_ALIGN_FILL);
 	  gtk_widget_set_vexpand (draw_area, GTK_ALIGN_FILL);
 		gtk_container_add(GTK_CONTAINER(window), grid);
 
 		// init draw
-		combo_changed(GTK_COMBO_BOX(combo), NULL);
+		combo_files_changed(GTK_COMBO_BOX(combo_files), NULL);
 
 		// signals
 		g_signal_connect(G_OBJECT(draw_area), "draw",

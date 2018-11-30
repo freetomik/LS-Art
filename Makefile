@@ -1,29 +1,28 @@
 CC = g++
 
-HOSTNAME = $(shell hostname)
-ifeq "$(HOSTNAME)" "eva.fit.vutbr.cz"
-CC = g++6
-endif
+ODIR = obj
+SDIR = src
+OUT = bin/lsart
 
-OBJFILES = main.o ini.o gui.o fragen.o lsystem.o turtle.o
+_OBJS = main.o ini.o gui.o lsgen.o lsystem.o turtle.o
+OBJS = $(patsubst %,$(ODIR)/%,$(_OBJS))
 
-CFLAGS = -std=c++11 -static-libstdc++ -Wall -O -fno-builtin -g
+CFLAGS = -std=c++11 -Wall -O -fno-builtin -g
 PKGCONFIG = `pkg-config gtk+-3.0 --cflags --libs`
 
-%.o : %.cpp
-	$(CC) $(CFLAGS) -c $< $(PKGCONFIG)
+$(ODIR)/%.o : $(SDIR)/%.cpp
+	$(CC) $(CFLAGS) -c $< -o $@ $(PKGCONFIG)
 
 all: main
 .PHONY: clean
 
-dep:
-	$(CC) -MM *.cpp > dep.list
+# dep:
+# 	$(CC) -MM *.cpp > dep.list
+#
+# -include dep.list
 
--include dep.list
-# thank you David Martinek, http://www.fit.vutbr.cz/~martinek/clang/make.html
-
-main: $(OBJFILES)
-	$(CC) $(CFLAGS) $(OBJFILES) -o fragen $(PKGCONFIG)
+main: $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(OUT) $(PKGCONFIG)
 
 clean :
-	rm -f fragen *.o
+	rm -f $(ODIR)/*.o $(OUT)
