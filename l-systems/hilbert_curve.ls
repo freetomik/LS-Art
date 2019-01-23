@@ -11,4 +11,4 @@ rule1=Y>+XF-YFY-FX+
 iterations=5
 lineLength=7
 x=10
-y=440
+y=590

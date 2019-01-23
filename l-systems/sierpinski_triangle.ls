@@ -8,4 +8,4 @@ rule1=G>GG
 iterations=4
 lineLength=30
 x=10
-y=440
+y=590
