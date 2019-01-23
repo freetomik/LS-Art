@@ -4,16 +4,21 @@
 
 #define PI 3.141592653589793
 
-Turtle::Turtle(double x, double y, double r, cairo_t *cr)
+Turtle::Turtle()
+{
+    this->x = 0;
+    this->y = 0;
+    this->rotation = 0;
+}
+
+Turtle::Turtle(double x, double y, double r)
   // : x(x),
   //   y(y),
   //   rotation(r),
-  //   cr(cr)
 {
     this->x = x;
     this->y = y;
     this->rotation = r;
-    this->cr = cr;
 }
 
 // Implementation of methods is inspired by
@@ -42,26 +47,26 @@ void Turtle::turnBackwards() {
     this->turnLeft(180.0);
 }
 
-void Turtle::forwardLine(double distance) {
+void Turtle::forwardLine(double distance, cairo_t *context) {
     // calculate (x,y) movement vector from heading
     double radians = this->rotation * PI / 180.0;
     double dx = cos(radians) * distance;
     double dy = sin(radians) * distance;
 
     this->x += dx; this->y += dy;
-    cairo_line_to(this->cr, this->x, this->y);
-    // or try cairo_rel_line_to(this->cr, dx, dy);
+    cairo_line_to(context, this->x, this->y);
+    // or try cairo_rel_line_to(context, dx, dy);
 }
 
-void Turtle::forwardGo(double distance) {
+void Turtle::forwardGo(double distance, cairo_t *context) {
     // calculate (x,y) movement vector from heading
     double radians = this->rotation * PI / 180.0;
     double dx = cos(radians) * distance;
     double dy = sin(radians) * distance;
 
     this->x += dx; this->y += dy;
-    cairo_move_to(this->cr, this->x, this->y);
-    // or try cairo_rel_move_to(this->cr, dx, dy);
+    cairo_move_to(context, this->x, this->y);
+    // or try cairo_rel_move_to(context, dx, dy);
 }
 
 Turtle::~Turtle(){}

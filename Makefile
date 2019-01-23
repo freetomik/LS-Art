@@ -4,11 +4,11 @@ ODIR = obj
 SDIR = src
 OUT = bin/lsart
 
-_OBJS = main.o ini.o gui.o lsgen.o lsystem.o turtle.o
+_OBJS = main.o ini.o gui.o lsystem.o turtle.o lsgen.o lsrend.o util.o
 OBJS = $(patsubst %,$(ODIR)/%,$(_OBJS))
 
 CFLAGS = -std=c++11 -Wall -O -fno-builtin -g
-PKGCONFIG = `pkg-config gtk+-3.0 --cflags --libs`
+PKGCONFIG = `pkg-config gtk+-3.0 --cflags --libs cairo-svg`
 
 $(ODIR)/%.o : $(SDIR)/%.cpp
 	$(CC) $(CFLAGS) -c $< -o $@ $(PKGCONFIG)

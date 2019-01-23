@@ -9,13 +9,13 @@
 class LSGenerator {
 private:
   LSystem ls;
-  vector<string> iterations;
+  std::vector<std::string> iterations;
 public:
   LSGenerator ();
 
   LSystem getLS();
-  void readLSFromFile(string filename);
-  string getIteration(unsigned int n);
+  void readLSFromFile(std::string filename);
+  std::string getIteration(unsigned int n);
 
   virtual ~LSGenerator ();
 };

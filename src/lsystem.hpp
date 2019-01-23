@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 
-using namespace std;
+// using namespace std;
 
 // default values for drawing
 typedef struct {
@@ -18,21 +18,21 @@ typedef struct {
 
 class LSystem {
 private:
-  string name;
-  string axiom;
-  typedef map<char, string> rule_map_t;
+  std::string name;
+  std::string axiom;
+  typedef std::map<char, std::string> rule_map_t;
   rule_map_t rules;
 
   draw_info_t draw_info;
 
 public:
   LSystem();
-  LSystem(string filename);
+  LSystem(std::string filename);
 
-  string getAxiom();
+  std::string getAxiom();
   void dump();
-  string expand(const string strToExpand);
-  void readFromFile(string filename);
+  std::string expand(const std::string strToExpand);
+  void readFromFile(std::string filename);
   draw_info_t getDrawInfo();
 
   virtual ~LSystem();
@@ -44,17 +44,17 @@ public:
 // http://www.cplusplus.com/forum/articles/9645/
 // TODO license
 template <typename T>
-string NumberToString ( T Number )
+std::string NumberToString ( T Number )
 {
-	stringstream ss;
+	std::stringstream ss;
 	ss << Number;
 	return ss.str();
 }
 
 template <typename T>
-T StringToNumber ( const string &Text )//Text not by const reference so that the function can be used with a
+T StringToNumber ( const std::string &Text )//Text not by const reference so that the function can be used with a
 {                               //character array as argument
-	stringstream ss(Text);
+	std::stringstream ss(Text);
 	T result;
 	return ss >> result ? result : 0;
 }

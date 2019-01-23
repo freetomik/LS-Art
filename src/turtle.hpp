@@ -9,17 +9,16 @@ private:
 	double y;
 	double rotation;
 
-  cairo_t *cr;  // cairo drawing context
-
 public:
-	Turtle(double x, double y, double r, cairo_t *cr);
+	Turtle();
+	Turtle(double x, double y, double r);
 
-  void turnLeft(double angle);
-  void turnRight(double angle);
-  void turnBackwards();
+	void turnLeft(double angle);
+	void turnRight(double angle);
+	void turnBackwards();
 
-  void forwardLine(double distance);
-  void forwardGo(double distance);
+	void forwardLine(double distance, cairo_t *context);
+	void forwardGo(double distance, cairo_t *context);
 
 	virtual ~Turtle();
 };
