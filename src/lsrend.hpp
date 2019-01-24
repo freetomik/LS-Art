@@ -19,7 +19,6 @@ private:
 public:
     LSRenderer (cairo_t *context, std::string string, draw_info_t di);
 
-    // void setTurtle(Turtle turtle);
     void render();
 
     virtual ~LSRenderer ();

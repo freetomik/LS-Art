@@ -12,10 +12,14 @@ private:
 public:
 	Turtle();
 	Turtle(double x, double y, double r);
+	
+	double getX();
+	double getY();
+	double getRotation();
 
 	void turnLeft(double angle);
 	void turnRight(double angle);
-	void turnBackwards();
+	void turnBack();
 
 	void forwardLine(double distance, cairo_t *context);
 	void forwardGo(double distance, cairo_t *context);

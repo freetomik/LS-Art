@@ -20,6 +20,19 @@ Turtle::Turtle(double x, double y, double r)
     this->y = y;
     this->rotation = r;
 }
+	
+double Turtle::getX() {
+    return this->x;
+}
+
+double Turtle::getY() {
+    return this->y;
+}
+
+double Turtle::getRotation() {
+    return this->rotation;
+}
+
 
 // Implementation of methods is inspired by
 // Simple array-based turtle graphics engine in C
@@ -43,7 +56,7 @@ void Turtle::turnRight(double angle) {
     this->turnLeft(-angle);
 }
 
-void Turtle::turnBackwards() {
+void Turtle::turnBack() {
     this->turnLeft(180.0);
 }
 

@@ -3,7 +3,7 @@
 #include "lsgen.hpp"
 #include "lsrend.hpp"
 
-// #include <iostream>
+#include <iostream>
 #include <fstream>
 
 using namespace std;
@@ -17,6 +17,8 @@ GtkWidget *ls_text_view = NULL;
 GtkTextBuffer *ls_text_buffer = NULL;
 GtkWidget *draw_string_text_view = NULL;
 GtkTextBuffer *draw_string_text_buffer = NULL;
+
+string filename;
 
 LSGenerator *ls_gen;
 LSRenderer *gtk_rend;
@@ -40,8 +42,6 @@ static gboolean do_draw(GtkWidget *draw_area, cairo_t *context, gpointer data)
 	cairo_set_antialias(context, CAIRO_ANTIALIAS_DEFAULT);
 	// TODO: set some nice LINE_JOIN
 
-	cairo_new_path(context);	/* new drawing */
-
 	// put draw string to text view
 	// const char *draw_string_text;
 	if(draw_string.length() > 100)
@@ -53,12 +53,9 @@ static gboolean do_draw(GtkWidget *draw_area, cairo_t *context, gpointer data)
 	gtk_rend->render();
 	delete gtk_rend;
 
-	// cairo_close_path(context);	/* close drawing path (connect start & end point) */
-
 	/* cairo_fill/stroke ends the drawing */
 	cairo_stroke(context);
 
-	cairo_fill (context);
 
 	return TRUE; /* don't let go the event to higher place */
 }
@@ -115,52 +112,32 @@ void show_info_dialog(GtkButton *button, gpointer user_data)
 }
 
 void save_svg(GtkButton *button, gpointer user_data)
-{ 
-	// TODO make save dialog to create file name
-	cairo_surface_t *svg_surface = cairo_svg_surface_create("ls.svg", 600, 600);
+{
+	// TODO maybe make save dialog to create file name
+	string svg_filename = "../svg/"+filename+".svg";
+	cairo_surface_t *svg_surface = cairo_svg_surface_create(svg_filename.data(), 600, 600);
 	cairo_t *svg_context = cairo_create(svg_surface);
 
 	cairo_set_antialias(svg_context, CAIRO_ANTIALIAS_DEFAULT);
 	// TODO: set some nice LINE_JOIN
 
-	cairo_new_path(svg_context);	/* new drawing */
-
 	LSRenderer *svg_rend = new LSRenderer(svg_context, draw_string, draw_info);
 	svg_rend->render();
 	delete svg_rend;
-
-	cairo_stroke(svg_context);
-	cairo_fill (svg_context);
-	// cairo_paint(svg_context);
 
 	cairo_surface_flush(svg_surface);
 	cairo_surface_finish(svg_surface);
 	cairo_surface_destroy(svg_surface);
 	// cairo_destroy(svg_context);
-	// std::cout << "svg written" << '\n';
+	std::cout << "svg image written to " << svg_filename << '\n';
 	// std::cout << "cairo svg surface status: " << cairo_status_to_string(cairo_surface_status(svg_surface)) << '\n';
 	// std::cout << "cairo svg context status: " << cairo_status_to_string(cairo_status(svg_context)) << '\n';
 }
 
-// void save_svg(GtkButton *button, gpointer user_data)
-// {
-// 	// TODO make save dialog to create file name
-// 	cairo_surface_t *svg_surface = cairo_svg_surface_create("ls.svg", 600, 600);
-// 	cairo_t *svg_context = cairo_create(svg_surface);
-// 	cairo_set_source_surface(svg_context, cairo_surface, 0, 0);
-// 	cairo_paint(svg_context);
-// 
-// 	cairo_surface_flush(svg_surface);
-// 	cairo_surface_finish(svg_surface);
-// 	// cairo_surface_destroy(svg_surface);
-// 	// cairo_destroy(svg_context);
-// 	std::cout << "svg written" << '\n';
-// }
-
 void combo_files_changed(GtkComboBox *widget, gpointer user_data)
 {
 		gint index = gtk_combo_box_get_active(widget);
-		string filename = LS_files[index];
+		filename = LS_files[index];
 
 		string file_path = string("../l-systems/") + filename;
 		// string file_path = filename;
