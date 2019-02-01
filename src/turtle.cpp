@@ -16,8 +16,10 @@ Turtle::Turtle(double x, double y, double r)
   //   y(y),
   //   rotation(r),
 {
-    this->x = x;
-    this->y = y;
+    // this->x = x;
+    // this->y = y;
+    this->x = 0;
+    this->y = 0;
     this->rotation = r;
 }
 	

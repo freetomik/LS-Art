@@ -10,8 +10,12 @@ using namespace std;
 
 GtkWidget *window = NULL;
 GtkWidget *draw_area = NULL;
+gint draw_area_w = 600, draw_area_h = 600; 
+double x1, y1, x2, y2;  // boundaries of drawing
 
-cairo_surface_t *cairo_surface = NULL;
+// create recording surface, draw on it, then get its extents and according to it
+// create size of cairo and svg surfaces, and also translate and scale
+cairo_surface_t *rec_surface = cairo_recording_surface_create(CAIRO_CONTENT_COLOR_ALPHA, NULL);
 
 GtkWidget *ls_text_view = NULL;
 GtkTextBuffer *ls_text_buffer = NULL;
@@ -21,26 +25,17 @@ GtkTextBuffer *draw_string_text_buffer = NULL;
 string filename;
 
 LSGenerator *ls_gen;
-LSRenderer *gtk_rend;
 string draw_string;
 draw_info_t draw_info;
 unsigned short curr_iter;
 
 vector<string> LS_files = vector<string>();
 
-static gboolean do_draw(GtkWidget *draw_area, cairo_t *context, gpointer data)
+static gboolean do_draw(GtkWidget *draw_area, cairo_t *gtk_context, gpointer data)
 {
-	// get surface to global variable to use it for saving svg
-	if(cairo_surface == NULL) {
-		cairo_surface = cairo_surface_reference(cairo_get_target(context));
-		// std::cout << "surface saved to global variable" << '\n';
-	}
 	// GtkAllocation alloc;
-	//
 	// gtk_widget_get_allocation(draw_area, &alloc);
 	// g_print("width=%d height=%d\n", alloc.width, alloc.height);
-	cairo_set_antialias(context, CAIRO_ANTIALIAS_DEFAULT);
-	// TODO: set some nice LINE_JOIN
 
 	// put draw string to text view
 	// const char *draw_string_text;
@@ -49,13 +44,63 @@ static gboolean do_draw(GtkWidget *draw_area, cairo_t *context, gpointer data)
 	else
 		gtk_text_buffer_set_text (draw_string_text_buffer, draw_string.data(), -1);
 	
-	gtk_rend = new LSRenderer(context, draw_string, draw_info);
-	gtk_rend->render();
-	delete gtk_rend;
+	cairo_set_antialias(gtk_context, CAIRO_ANTIALIAS_DEFAULT);
+	// TODO: set some nice LINE_JOIN
 
-	/* cairo_fill/stroke ends the drawing */
-	cairo_stroke(context);
+	cairo_t *rec_context = cairo_create(rec_surface);
+	// cairo_translate(rec_context, 0, 0);
+	// cairo_scale (rec_context, 1, 1);
 
+	// clear recording context
+	cairo_save (rec_context);
+		cairo_set_source_rgba (rec_context, 1.0, 1.0, 1.0, 1.0);
+		cairo_set_operator (rec_context, CAIRO_OPERATOR_SOURCE);
+		// only clear is not reliable
+		// cairo_set_operator (rec_context, CAIRO_OPERATOR_CLEAR);
+		cairo_paint (rec_context);
+	cairo_restore (rec_context);
+	
+	// draw to recording surface
+	LSRenderer *rec_rend = new LSRenderer(rec_context, draw_string, draw_info);
+	rec_rend->render();
+	x1 = rec_rend->x1;
+	y1 = rec_rend->y1;
+	x2 = rec_rend->x2;
+	y2 = rec_rend->y2;
+	delete rec_rend;
+
+	// get recording surface extents
+	// double x0, y0, width, height;
+	// unfortunately it does not work,
+	// it returns: x0 = -8.38861e+06, y0 = -8.38861e+06, width = -1, height = -1
+	// cairo_recording_surface_ink_extents(rec_surface, &x0, &y0, &width, &height);
+	// device to user conversions do not help
+	// cairo_device_to_user(gtk_context, &x0, &y0);
+	// cairo_device_to_user_distance(gtk_context, &width, &height);
+	// std::cout << "x0 = " << x0 << ", ";
+	// std::cout << "y0 = " << y0 << ", ";
+	// std::cout << "width = " << width << ", ";
+	// std::cout << "height = " << height << ", ";
+	// std::cout << '\n';
+
+	// scale and translate gtk context to fit the image to drawing area
+	double scaleFactorX = draw_area_w / (x2 - x1);
+	double scaleFactorY = draw_area_h / (y2 - y1);
+	// preserve aspect ratio
+	double scaleFactor = scaleFactorX < scaleFactorY ? scaleFactorX : scaleFactorY;
+	cairo_scale(gtk_context, scaleFactor, scaleFactor);
+	cairo_translate(gtk_context, -x1, -y1);
+
+	// replay drawing from recording surface to drawing area
+	cairo_set_source_surface (gtk_context, rec_surface, 0.0, 0.0);
+	// cairo_set_source_surface (gtk_context, rec_surface, -x1, -y1);
+
+	cairo_paint(gtk_context);
+	// cairo_destroy(gtk_context);
+
+	// LSRenderer *gtk_rend = new LSRenderer(gtk_context, draw_string, draw_info);
+	// gtk_rend->render();
+	// delete gtk_rend;
 
 	return TRUE; /* don't let go the event to higher place */
 }
@@ -84,6 +129,9 @@ void decrease_iteration()
 static gboolean resize(GtkWidget *draw, GtkAllocation *alloc, gpointer data)
 {
 	// g_print("width=%d height=%d\n", alloc->width, alloc->height);
+	// std::cout << "width = " << alloc->width << ", ";
+	// std::cout << "height = " << alloc->height << "\n";
+	// gtk_widget_set_size_request(draw_area, alloc->width, alloc->height);
 	return TRUE;
 }
 
@@ -115,15 +163,21 @@ void save_svg(GtkButton *button, gpointer user_data)
 {
 	// TODO maybe make save dialog to create file name
 	string svg_filename = "../svg/"+filename+".svg";
-	cairo_surface_t *svg_surface = cairo_svg_surface_create(svg_filename.data(), 600, 600);
+	double svg_w = x2 - x1, svg_h = y2 - y1;
+	cairo_surface_t *svg_surface = cairo_svg_surface_create(svg_filename.data(), svg_w, svg_h);
 	cairo_t *svg_context = cairo_create(svg_surface);
 
 	cairo_set_antialias(svg_context, CAIRO_ANTIALIAS_DEFAULT);
 	// TODO: set some nice LINE_JOIN
 
-	LSRenderer *svg_rend = new LSRenderer(svg_context, draw_string, draw_info);
-	svg_rend->render();
-	delete svg_rend;
+	cairo_translate(svg_context, -x1, -y1);
+	// replay drawing from recording surface to drawing area
+	cairo_set_source_surface (svg_context, rec_surface, 0.0, 0.0);
+	cairo_paint(svg_context);
+
+	// LSRenderer *svg_rend = new LSRenderer(svg_context, draw_string, draw_info);
+	// svg_rend->render();
+	// delete svg_rend;
 
 	cairo_surface_flush(svg_surface);
 	cairo_surface_finish(svg_surface);
@@ -243,7 +297,7 @@ void runGUI(int argc, char **argv)
 
 		// drawing area (is global)
 		draw_area = gtk_drawing_area_new();
-		gtk_widget_set_size_request(draw_area, 600, 600);
+		gtk_widget_set_size_request(draw_area, draw_area_w, draw_area_h);
 		gtk_grid_attach(GTK_GRID(grid), draw_area, 1, 1, 6, 1);
 		// FIXME expand drawing area to fill the window
 		gtk_widget_set_hexpand (draw_area, GTK_ALIGN_FILL);
