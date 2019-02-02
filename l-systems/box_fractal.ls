@@ -9,3 +9,4 @@ rule0=F>F-F+F+F-F
 angle=90
 iterations=4
 lineLength=5
+closed=1
