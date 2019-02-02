@@ -1,0 +1,79 @@
+legend:
+to do
+URGENT TO DO
+(maybe will do)
+// will not do
+    done
+
+bugs:
+    continuous line when poping from stack (see plant.ls.svg)
+GAPS BETWEEN STARTING OF NEW BRANCHES
+peano and hilbert curves look weird
+crash with only one or no .ls files
+
+organizational:
+    remove support for eva the school server (static linking of libstdc++ and usage of g++6)
+    rename program name and title
+    separate source and object files
+    create needed folders in makefile
+    reduce cflags to only really neccessary (remove -g, maybe also -fno-builtin)
+    write readme / help
+    add license
+SUBMIT FOR 2.TIME
+add separate input files into [L-system] and [Draw-info] sections and read them into separate objects
+separate source and header files
+(rewrite to using oop gtkmm)
+
+l-system:
+    set default values for parameters
+change axiom to be string, not only one character
+add colour rule to LS definition to change colour gradually in model path
+add more l-system features (@, |) to render tiling from lecture 12, p.71
+polygons? ({.})
+support for change of:
+- line color
+- angle of rotation
+- line width
+- line length
+
+saving:
+    save as svg
+    fit svg picture to center
+
+examples:
+    remove x and y parameters
+    add close close path parameter
+    peano curve
+dragon curve
+gosper curve
+penrose tiling
+
+rendering:
+    separate whole picture into more paths (e.g. close path when poping/pushing from/to stack) - in svg there is currently one huge path
+    close path at the end if specified
+
+gui:
+// 2 combo boxes: subfolders and particular l-systems in them, as in java 3D_Lsystems
+    increase/decrease iteration of L-System and redraw - buttons up and down
+    support for tree structures (and turtle stack)
+    zoom/move drawings to fit to draw area (and so drawing does not move when changing iteration)
+    // - draw to unbounded recording surface https://cairographics.org/manual/cairo-Recording-Surfaces.html
+    // - get extents of recording surface
+    // - for gtk drawing area use cairo_scale(), cairo_translate() to fit the drawing to window
+    // - for svg create surface with size of those extents (or also make maximum size and scale then)
+    // or
+    - get extents of paths
+dynamic size of draw area (according to display size)
+show draw_string
+- make draw_string text view scrollable with word wrap:
+- https://developer.gnome.org/gnome-devel-demos/stable/textview.c.html.en
+default folder for l-systems will be ../l-systems (but user should be able to choose different)
+changing background and foreground (lines) colours
+interactive change of L-System definition in program
+add parameter for joining lines of some L-Systems (to have start and end point connected)
+
+generating:
+limit size of generated string
+(cache already generated strings, of one L-System yet)
+// animations?
+// 3D graphics?
