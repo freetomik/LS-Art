@@ -11,7 +11,7 @@ using namespace std;
 GtkWidget *window = NULL;
 GtkWidget *draw_area = NULL;
 gint draw_area_w = 600, draw_area_h = 600; 
-double x1, y1, x2, y2;  // boundaries of drawing
+cairo_rectangle_t draw_rect;
 
 // create recording surface, draw on it, then get its extents and according to it
 // create size of cairo and svg surfaces, and also translate and scale
@@ -63,10 +63,7 @@ static gboolean do_draw(GtkWidget *draw_area, cairo_t *gtk_context, gpointer dat
 	// draw to recording surface
 	LSRenderer *rec_rend = new LSRenderer(rec_context, draw_string, draw_info);
 	rec_rend->render();
-	x1 = rec_rend->x1;
-	y1 = rec_rend->y1;
-	x2 = rec_rend->x2;
-	y2 = rec_rend->y2;
+	draw_rect = rec_rend->getExtents();
 	delete rec_rend;
 
 	// get recording surface extents
@@ -84,16 +81,16 @@ static gboolean do_draw(GtkWidget *draw_area, cairo_t *gtk_context, gpointer dat
 	// std::cout << '\n';
 
 	// scale and translate gtk context to fit the image to drawing area
-	double scaleFactorX = draw_area_w / (x2 - x1);
-	double scaleFactorY = draw_area_h / (y2 - y1);
+	double scaleFactorX = draw_area_w / draw_rect.width;
+	double scaleFactorY = draw_area_h / draw_rect.height;
 	// preserve aspect ratio
 	double scaleFactor = scaleFactorX < scaleFactorY ? scaleFactorX : scaleFactorY;
 	cairo_scale(gtk_context, scaleFactor, scaleFactor);
-	cairo_translate(gtk_context, -x1, -y1);
+	cairo_translate(gtk_context, -draw_rect.x, -draw_rect.y);
 
 	// replay drawing from recording surface to drawing area
 	cairo_set_source_surface (gtk_context, rec_surface, 0.0, 0.0);
-	// cairo_set_source_surface (gtk_context, rec_surface, -x1, -y1);
+	// cairo_set_source_surface (gtk_context, rec_surface, -draw_rect.x, -draw_rect.y);
 
 	cairo_paint(gtk_context);
 	// cairo_destroy(gtk_context);
@@ -107,13 +104,11 @@ static gboolean do_draw(GtkWidget *draw_area, cairo_t *gtk_context, gpointer dat
 
 void increase_iteration()
 {
-		// TODO set upper boundary - if draw_string is very large
-		if (true) {
-			// get next iteration of L-System
-			draw_string = ls_gen->getIteration(++curr_iter);
-			// redraw drawing area
-			gtk_widget_queue_draw(draw_area);
-		}
+	// upper boundary - if draw_string is very large is set in lsystem.cpp
+	// get next iteration of L-System
+	draw_string = ls_gen->getIteration(++curr_iter);
+	// redraw drawing area
+	gtk_widget_queue_draw(draw_area);
 }
 
 void decrease_iteration()
@@ -154,23 +149,28 @@ static void open_message_dialog(const char *message, const char *secondary)
 void show_info_dialog(GtkButton *button, gpointer user_data)
 {
 		const char *msg = "L-System Art Generator";
-		const char *sec = "This program generates string from specified L-System "
-											"and renders it with turtle graphics.";
+		const char *sec =
+		"This program generates string from specified L-System "
+		"and renders it with turtle graphics.\n"
+		"Created as school project for courses GUIs in X window system and Computer Art.\n"
+		"Author: Bc. Tomáš Hudziec at BUT FIT, 2017-2019";
 		open_message_dialog(msg, sec);
 }
 
 void save_svg(GtkButton *button, gpointer user_data)
 {
 	// TODO maybe make save dialog to create file name
-	string svg_filename = "../svg/"+filename+".svg";
-	double svg_w = x2 - x1, svg_h = y2 - y1;
+	string name = filename.substr(0, filename.find_last_of("."));
+	string iter = NumberToString<unsigned short>(curr_iter);
+	string svg_filename = "../svg/"+name+"-"+iter+"-iter.svg";
+	double svg_w = draw_rect.width, svg_h = draw_rect.height;
 	cairo_surface_t *svg_surface = cairo_svg_surface_create(svg_filename.data(), svg_w, svg_h);
 	cairo_t *svg_context = cairo_create(svg_surface);
 
 	cairo_set_antialias(svg_context, CAIRO_ANTIALIAS_DEFAULT);
 	// TODO: set some nice LINE_JOIN
 
-	cairo_translate(svg_context, -x1, -y1);
+	cairo_translate(svg_context, -draw_rect.x, -draw_rect.y);
 	// replay drawing from recording surface to drawing area
 	cairo_set_source_surface (svg_context, rec_surface, 0.0, 0.0);
 	cairo_paint(svg_context);
@@ -222,6 +222,7 @@ void combo_files_changed(GtkComboBox *widget, gpointer user_data)
 		ls_gen = new LSGenerator();
 		ls_gen->readLSFromFile(file_path);
 		LSystem ls = ls_gen->getLS();
+		// ls.dump();
 		draw_info = ls.getDrawInfo();
 		draw_string = ls_gen->getIteration(draw_info.iterations);
 		curr_iter = draw_info.iterations;
@@ -285,15 +286,15 @@ void runGUI(int argc, char **argv)
 		g_signal_connect(G_OBJECT(increase_button), "clicked",
 			G_CALLBACK(increase_iteration), NULL);
 
-		GtkWidget *about_button = gtk_button_new_with_label("About");
-		gtk_grid_attach(GTK_GRID(grid), about_button, 3, 0, 1, 1);
-		g_signal_connect(G_OBJECT(about_button), "clicked",
-			G_CALLBACK(show_info_dialog), NULL);
-
 		GtkWidget *save_button = gtk_button_new_with_label("Save SVG");
-		gtk_grid_attach(GTK_GRID(grid), save_button, 4, 0, 1, 1);
+		gtk_grid_attach(GTK_GRID(grid), save_button, 3, 0, 1, 1);
 		g_signal_connect(G_OBJECT(save_button), "clicked",
 			G_CALLBACK(save_svg), NULL);
+
+		GtkWidget *about_button = gtk_button_new_with_label("About");
+		gtk_grid_attach(GTK_GRID(grid), about_button, 4, 0, 1, 1);
+		g_signal_connect(G_OBJECT(about_button), "clicked",
+			G_CALLBACK(show_info_dialog), NULL);
 
 		// drawing area (is global)
 		draw_area = gtk_drawing_area_new();

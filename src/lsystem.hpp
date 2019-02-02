@@ -12,8 +12,8 @@ typedef struct {
   double angle;
   unsigned int iterations;
   double lineLength;
-  double startX, startY;
   double rotation;
+  bool closed;
 } draw_info_t;
 
 class LSystem {

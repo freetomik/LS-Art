@@ -34,10 +34,19 @@ void LSystem::readFromFile(string filename)
     // drawing stuff
     this->draw_info.angle = StringToNumber<double>(LS_INI["angle"]);
     this->draw_info.lineLength = StringToNumber<double>(LS_INI["lineLength"]);
+    if(this->draw_info.lineLength == 0) this->draw_info.lineLength = 20;
     this->draw_info.iterations = StringToNumber<int>(LS_INI["iterations"]);
-    this->draw_info.startX = StringToNumber<int>(LS_INI["x"]);
-    this->draw_info.startY = StringToNumber<int>(LS_INI["y"]);
+    if(this->draw_info.iterations == 0) this->draw_info.iterations = 3;
     this->draw_info.rotation = StringToNumber<int>(LS_INI["rotation"]);
+    this->draw_info.closed = StringToNumber<bool>(LS_INI["closed"]);
+
+    // std::cout << "draw_info:" << '\n';
+    // std::cout << "angle = " << this->draw_info.angle << '\n';
+    // std::cout << "lineLength = " << this->draw_info.lineLength << '\n';
+    // std::cout << "iterations = " << this->draw_info.iterations << '\n';
+    // std::cout << "rotation = " << this->draw_info.rotation << '\n';
+    // std::cout << "closed = " << this->draw_info.closed << '\n';
+    // std::cout << '\n';
 }
 
 draw_info_t LSystem::getDrawInfo()
@@ -49,6 +58,10 @@ draw_info_t LSystem::getDrawInfo()
 // according to L-System rules
 string LSystem::expand(const string strToExpand)
 {
+    if (strToExpand.size() > strToExpand.max_size() / 2) {
+        std::cerr << "generation string to huge for further expansion" << '\n';
+        return strToExpand;
+    }
     char c;
     string expandedStr(strToExpand);
     rule_map_t::iterator rule_map_iter;
@@ -78,6 +91,7 @@ void LSystem::dump()
     cout << "angle: " << this->draw_info.angle << '\n';
     cout << "iter: " << this->draw_info.iterations << '\n';
     cout << "rotation: " << this->draw_info.rotation << '\n';
+    cout << "closed: " << this->draw_info.closed << '\n';
     cout << '\n';
 }
 

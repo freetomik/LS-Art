@@ -4,24 +4,11 @@
 
 #define PI 3.141592653589793
 
-Turtle::Turtle()
-{
-    this->x = 0;
-    this->y = 0;
-    this->rotation = 0;
-}
+Turtle::Turtle() : x(0), y(0), rotation(0) {}
 
-Turtle::Turtle(double x, double y, double r)
-  // : x(x),
-  //   y(y),
-  //   rotation(r),
-{
-    // this->x = x;
-    // this->y = y;
-    this->x = 0;
-    this->y = 0;
-    this->rotation = r;
-}
+Turtle::Turtle(double r) : x(0), y(0), rotation(r) {}
+
+Turtle::Turtle(double x, double y, double r) : x(x), y(y), rotation(r) {}
 	
 double Turtle::getX() {
     return this->x;

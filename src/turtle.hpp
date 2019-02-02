@@ -11,6 +11,7 @@ private:
 
 public:
 	Turtle();
+	Turtle(double r);
 	Turtle(double x, double y, double r);
 	
 	double getX();
