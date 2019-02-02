@@ -12,6 +12,5 @@ rule3=T>TL
 rule4=L>[-FFF][+FFF]F
 iterations=9
 lineLength=8
-x=300
-y=600
 rotation=270
+closed=0

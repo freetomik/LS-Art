@@ -1,11 +1,12 @@
+# Sierpinski triangle
+
 [L-System]
-name=Sierpinski
-angle=120
-numRules=2
+name=Sierpinski triangle
 axiom=F-G-G
+numRules=2
 rule0=F>F-G+F+G-F
 rule1=G>GG
-iterations=4
+angle=120
+iterations=6
 lineLength=30
-x=10
-y=590
+closed=1

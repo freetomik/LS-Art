@@ -6,5 +6,4 @@ rule0=F>F+F--F+F
 angle=60
 iterations=4
 lineLength=5
-x=40
-y=460
+closed=1

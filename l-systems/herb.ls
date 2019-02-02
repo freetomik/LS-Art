@@ -1,0 +1,11 @@
+[L-System]
+name=Herb
+axiom=X
+angle=18
+numRules=2
+rule0=X>F[+X]F[-X]+X
+rule1=F>FF
+iterations=7
+lineLength=9
+rotation=270
+closed=0

@@ -9,6 +9,5 @@ rule0=G>GFX[+G][-G]
 rule1=X>X[-FFF][+FFF]FX
 iterations=6
 lineLength=2
-x=300
-y=600
 rotation=270
+closed=0
